@@ -14,24 +14,30 @@ class WeatherSearchEngine():
 
     def __init__(self) -> None:
         
-        self.lokator = Geolocator()
+        self.locator = Geolocator()
+        self._setting_service()
 
 
-
-    def _setting(self) -> None:
+    def _setting_service(self) -> None:
         '''
-        Настройка параметров
+        Настройка сервиса
         '''
-        url = "https://api.open-meteo.com/v1/forecast"
+        self.url = "https://api.open-meteo.com/v1/forecast"
 
         cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
         retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
-        openmeteo = openmeteo_requests.Client(session = retry_session)
+        self.openmeteo = openmeteo_requests.Client(session = retry_session)
 
-        coordinates=self.lokator.get_coordinates()
+
+    def _setting_parameters(self, location:str) -> None:
+        '''
+        Настройка параметров для поиска
+        '''
+
+        coordinates=self.locator.get_coordinates(location)
 
         # Параметры для запроса
-        params = {
+        self.params = {
             # Широта
             "latitude": coordinates[0],
             # Долгота
@@ -45,6 +51,12 @@ class WeatherSearchEngine():
                 "precipitation_probability_max", "wind_speed_10m_max"],
             # Часовой пояс
             "timezone": 'auto'}
+    
 
+    def get_weather(self, location:str) -> None:
+        '''
+        Получить погоду по городу
+        '''
+        self._setting_parameters(location)
         # Запрос данных по параметрам
-        self.responses = openmeteo.weather_api(url, params=params)[0]
+        self.response = self.openmeteo.weather_api(self.url, params=self.params)[0]
