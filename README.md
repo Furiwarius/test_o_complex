@@ -1,6 +1,6 @@
 # test_o_complex
 
-Используемые технологии: FastApi, SQLalchemy.
+Используемые технологии: FastApi, SQLalchemy, SQLLite.
 Все зависимости находятся в файле requirements.txt.
 
 Принцип работы: 
