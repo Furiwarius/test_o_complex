@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine, Engine
-from mysql.connector import connect, Error
-from app.settings.settings import NAME_DATABASE, DATABASE_PASSWORD, DATABASE_USER, HOST
+from app.settings.settings import NAME_DATABASE
 from app.database.tables.essence import Base
 from sqlalchemy.orm import Session
 
@@ -16,6 +15,7 @@ class Database():
 
 
     _instance = None  # Приватное поле для хранения единственного экземпляра
+
 
 
     def __new__(cls):
@@ -41,52 +41,14 @@ class Database():
 
 
 
-
-    def create_database(self) -> None:
-        '''
-        Метод для создания базы данных
-        '''
-        
-        create_db_query = f"CREATE DATABASE {self.database_name}"
-        self._execution_request(request=create_db_query)
-            
-
-
-    def delete_database(self) -> None:
-        '''
-        Метод для удаления базы данных
-        '''
-
-        delete_request = f"DROP DATABASE {self.database_name}"
-        self._execution_request(request=delete_request)
-
-
-
-    def _execution_request(self, request:str) -> None:
-        '''
-        Выполнение запроса
-        '''
-        try:
-            with connect(
-                host=HOST,
-                user=DATABASE_USER,
-                password=DATABASE_PASSWORD) as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(request)
-        except Error as e:
-            print(e)
-
-
-
     def _new_engine(self) -> Engine:
         '''
         Создание движка SQLalchemy
         '''
-        self.create_database()
         # строка подключения
-        mysql_database = f"mysql+pymysql://{DATABASE_USER}:{DATABASE_PASSWORD}@{HOST}/{self.database_name}"
+        mysql_database = f"sqlite:///app/database/{self.database_name}.db"
         # создаем движок SqlAlchemy
-        self.engine = create_engine(mysql_database, echo=False)
+        self.engine = create_engine(mysql_database, echo=False, connect_args={"check_same_thread": False}) 
 
 
 
