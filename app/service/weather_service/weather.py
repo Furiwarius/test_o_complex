@@ -54,7 +54,9 @@ class WeatherSearch():
             # Ежедневно 
             "daily": daily_params,
             # Часовой пояс
-            "timezone": 'auto'}
+            "timezone": 'GMT',
+            # Количество дней для отслеживания
+            "forecast_days": 3}
     
 
 
@@ -69,7 +71,7 @@ class WeatherSearch():
         self._daily_data_generation()
 
         return {"hourly":self.hourly_dataframe.loc[str(round_time(datetime.now(timezone.utc)))], 
-                "daily":self.daily_dataframe[1:4]} # дает погоду на 3 дня
+                "daily":self.daily_dataframe}
 
 
 
