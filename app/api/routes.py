@@ -1,12 +1,10 @@
-from fastapi import APIRouter, Depends
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi import APIRouter, Depends,  Form, Request
+from fastapi.responses import FileResponse
 from app.database.cruds import ApplicationCRUD
-from app.database.database import Database
-from app.api.models import UserRequest
 from app.service.weather_service.weather import WeatherSearch
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from app.utils.message_render import message_render
+from datetime import datetime, timezone
 
 
 router = APIRouter()
@@ -18,7 +16,7 @@ wearher_search = WeatherSearch()
 app_crud = ApplicationCRUD()
 
 
-@router.get("/")
+@router.get("/", response_class=FileResponse)
 async def index():
 
     return FileResponse("app/templates/index.html")
@@ -26,11 +24,13 @@ async def index():
 
 
 @router.post("/weather")
-async def get_weather(location: UserRequest):
-
-    app_crud.add_record(request=location.sity)
+async def get_weather(request:Request, location=Form()):
+    app_crud.add_record(request=location)
     
-    wearher = wearher_search.get_weather(location.sity)
+    wearher = wearher_search.get_weather(location)
 
-    messege = message_render(data=wearher, location=location.sity)
-    return {"message": f"{messege}"}
+    date = datetime.now(timezone.utc)
+    return templates.TemplateResponse("weather.html", {"request": request, 
+                                                       "weather_now": wearher.get("hourly"),
+                                                       "daily": wearher.get("daily"), 
+                                                       "date": f"{date.hour}:{date.minute}"})
