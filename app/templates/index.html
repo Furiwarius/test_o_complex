@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Погода</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h1>Поиск погоды по городам</h1>
+    <div id="message"></div>
+     <p>
+        Введите город: <br /> 
+        <input name="sity" id="sity" />
+    </p>
+    <button onclick="send()">Отправить</button>
+
+    <script>
+        async function send(){
+ 
+            // получаем введеные в поля имя и возраст
+            const sity = document.getElementById("sity").value;
+        
+            // отправляем запрос
+            const response = await fetch("/weather", {
+                    method: "POST",
+                    headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        request: sity
+                    })
+                });
+                if (response.ok) {
+                    const data = await response.json(); 
+                    document.getElementById("message").textContent = data.message;
+                }
+                else
+                    console.log(response);
+        }
+    </script>
+    
+</body>
+</html>
