@@ -4,7 +4,9 @@ import requests_cache
 import pandas as pd
 from retry_requests import retry
 from datetime import datetime, timezone, timedelta
-
+from app.entities.weather_for_day import WeatherForDay
+from app.entities.weather_now import WeatherNow
+from app.utils.round_time import round_time
 
 
 class WeatherSearch():
@@ -45,12 +47,10 @@ class WeatherSearch():
             # Долгота
             "longitude": coordinates[1],
             # Ежечасно
-            "hourly": ["temperature_2m", "relative_humidity_2m", "apparent_temperature",
-                    "precipitation_probability", "precipitation", "rain", "snowfall",
-                    "surface_pressure", "cloud_cover", "cloud_cover_mid", "wind_speed_10m"],
+            "hourly": ["temperature_2m", "precipitation",
+                    "surface_pressure", "wind_speed_10m"],
             # Ежедневно 
-            "daily": ["temperature_2m_max", "apparent_temperature_max", "precipitation_hours", 
-                "precipitation_probability_max", "wind_speed_10m_max"],
+            "daily": ["temperature_2m_max", "precipitation_hours", "wind_speed_10m_max"],
             # Часовой пояс
             "timezone": 'auto'}
     
@@ -66,7 +66,8 @@ class WeatherSearch():
         self._hourly_data_generation()
         self._daily_data_generation()
 
-        return {"hourly":self.hourly_dataframe, "daily":self.daily_dataframe}
+        return {"hourly":self.hourly_dataframe.loc[str(round_time(datetime.now(timezone.utc)))], 
+                "daily":self.daily_dataframe[1:4]} # дает погоду на 3 дня
 
 
 
@@ -78,17 +79,15 @@ class WeatherSearch():
         hourly = self.response.Hourly()
         # Почасовая температура 2 мм
         nympy_datas = [hourly.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["hourly"])]
-
-        hourly_data = {"date": pd.date_range(
+        
+        data_dict = {param:datas for datas, param in zip(nympy_datas, self.params["hourly"])}
+        self.hourly_dataframe = pd.DataFrame(data = data_dict)
+        self.hourly_dataframe.index = pd.date_range(
             start = pd.to_datetime(hourly.Time(), unit = "s", utc = True),
             end = pd.to_datetime(hourly.TimeEnd(), unit = "s", utc = True),
             freq = pd.Timedelta(seconds = hourly.Interval()),
             inclusive = "left"
-            )}
-        
-        data_dict = {param:datas for datas, param in zip(nympy_datas, self.params["hourly"])}
-        hourly_data.update(data_dict)
-        self.hourly_dataframe = pd.DataFrame(data = hourly_data)
+            )
         
 
 
@@ -101,14 +100,15 @@ class WeatherSearch():
         daily = self.response.Daily()
         # Почасовая температура 2 мм
         nympy_datas = [daily.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["daily"])]
-
-        daily_data = {"date": pd.date_range(
+        
+        data_dict = {param:datas for datas, param in zip(nympy_datas, self.params["hourly"])}
+        self.daily_dataframe = pd.DataFrame(data = data_dict)
+        self.daily_dataframe.index = pd.date_range(
             start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
             end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
             freq = pd.Timedelta(seconds = daily.Interval()),
             inclusive = "left"
-            )}
+            )
         
-        data_dict = {param:datas for datas, param in zip(nympy_datas, self.params["hourly"])}
-        daily_data.update(data_dict)
-        self.daily_dataframe = pd.DataFrame(data = daily_data)
+    
+    
