@@ -4,9 +4,12 @@ import requests_cache
 import pandas as pd
 from retry_requests import retry
 from datetime import datetime, timezone, timedelta
-from app.entities.weather_for_day import WeatherForDay
-from app.entities.weather_now import WeatherNow
 from app.utils.round_time import round_time
+
+hourly_params = ["temperature_2m", "precipitation",
+                    "surface_pressure", "wind_speed_10m"]
+
+daily_params = ["temperature_2m_max", "precipitation_hours", "wind_speed_10m_max"]
 
 
 class WeatherSearch():
@@ -47,10 +50,9 @@ class WeatherSearch():
             # Долгота
             "longitude": coordinates[1],
             # Ежечасно
-            "hourly": ["temperature_2m", "precipitation",
-                    "surface_pressure", "wind_speed_10m"],
+            "hourly": hourly_params,
             # Ежедневно 
-            "daily": ["temperature_2m_max", "precipitation_hours", "wind_speed_10m_max"],
+            "daily": daily_params,
             # Часовой пояс
             "timezone": 'auto'}
     
