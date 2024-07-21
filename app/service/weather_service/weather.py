@@ -1,12 +1,13 @@
-
 from app.service.geolocator.geolocator import Geolocator
 import openmeteo_requests
 import requests_cache
 import pandas as pd
 from retry_requests import retry
+from datetime import datetime, timezone, timedelta
 
 
-class WeatherSearchEngine():
+
+class WeatherSearch():
     '''
     Поисковик погоды
     '''
@@ -34,6 +35,7 @@ class WeatherSearchEngine():
         Настройка параметров для поиска
         '''
 
+        # Получаем координаты локации
         coordinates=self.locator.get_coordinates(location)
 
         # Параметры для запроса
@@ -53,10 +55,60 @@ class WeatherSearchEngine():
             "timezone": 'auto'}
     
 
-    def get_weather(self, location:str) -> None:
+
+    def get_weather(self, location:str) -> dict:
         '''
         Получить погоду по городу
         '''
         self._setting_parameters(location)
         # Запрос данных по параметрам
         self.response = self.openmeteo.weather_api(self.url, params=self.params)[0]
+        self._hourly_data_generation()
+        self._daily_data_generation()
+
+        return {"hourly":self.hourly_dataframe, "daily":self.daily_dataframe}
+
+
+
+    def _hourly_data_generation(self) -> None:
+        '''
+        Формирование данных по часам
+        '''
+        # Формирование почасовых данных
+        hourly = self.response.Hourly()
+        # Почасовая температура 2 мм
+        nympy_datas = [hourly.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["hourly"])]
+
+        hourly_data = {"date": pd.date_range(
+            start = pd.to_datetime(hourly.Time(), unit = "s", utc = True),
+            end = pd.to_datetime(hourly.TimeEnd(), unit = "s", utc = True),
+            freq = pd.Timedelta(seconds = hourly.Interval()),
+            inclusive = "left"
+            )}
+        
+        data_dict = {param:datas for datas, param in zip(nympy_datas, self.params["hourly"])}
+        hourly_data.update(data_dict)
+        self.hourly_dataframe = pd.DataFrame(data = hourly_data)
+        
+
+
+
+    def _daily_data_generation(self) -> None:
+        '''
+        Формирование данных для дней
+        '''
+        # Формирование данных по дням
+        daily = self.response.Daily()
+        # Почасовая температура 2 мм
+        nympy_datas = [daily.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["daily"])]
+
+        daily_data = {"date": pd.date_range(
+            start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
+            end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
+            freq = pd.Timedelta(seconds = daily.Interval()),
+            inclusive = "left"
+            )}
+        
+        data_dict = {param:datas for datas, param in zip(nympy_datas, self.params["hourly"])}
+        daily_data.update(data_dict)
+        self.daily_dataframe = pd.DataFrame(data = daily_data)
