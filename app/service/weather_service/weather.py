@@ -90,6 +90,7 @@ class WeatherSearch():
             freq = pd.Timedelta(seconds = hourly.Interval()),
             inclusive = "left"
             )
+        self.hourly_dataframe.index.name = "date"
         
 
 
@@ -111,6 +112,7 @@ class WeatherSearch():
             freq = pd.Timedelta(seconds = daily.Interval()),
             inclusive = "left"
             )
+        self.daily_dataframe.index.name = "date"
         
     
     
