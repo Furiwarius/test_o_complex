@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Погода</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <div class="now">
+        <h1>Погода в городе {{weather_now.location}}</h1>
+        <h2>Сейчас: {{date}}</h2>
+        <p>Температура: {{weather_now.temperature_2m|round}} С</p>
+        <p>Скорость ветра: {{ weather_now.wind_speed_10m|round}} м/ч</p>
+        <p>Осадки: {{weather_now.precipitation|round}}</p>
+        <p>Давление: {{weather_now.surface_pressure|round}}</p>
+    </div>
+    <div class="for_day">
+        <h1>Погода в городе на 3 дня</h1>
+        
+        {% for weather in daily %}
+            <p>Дата: {{ weather.date}}</p>
+            <p>Температура: {{weather.temperature_2m}} С</p>
+            <p>Осадки: {{weather.precipitation}}</p>
+            <p>Давление: {{weather.surface_pressure}}</p>
+        {% endfor %}
+    </div>
+    <a href="\">На главную</a>
+</body>
+</html>
