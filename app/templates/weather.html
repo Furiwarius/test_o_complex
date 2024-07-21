@@ -13,6 +13,8 @@
         <p>Осадки: {{weather_now.precipitation|round}}</p>
         <p>Давление: {{weather_now.surface_pressure|round}}</p>
     </div>
+    <!-- 
+    
     <div class="for_day">
         <h1>Погода в городе на 3 дня</h1>
         
@@ -23,6 +25,10 @@
             <p>Давление: {{weather.surface_pressure}}</p>
         {% endfor %}
     </div>
+    
+    Так как не решил каким образом лучше выводить DataFrame, 
+    то пока что отображаться не будет. Возможно, сделаю промежуточный
+    класс для передаче Jinja2в виде чистых словарей-->
     <a href="\">На главную</a>
 </body>
 </html>
