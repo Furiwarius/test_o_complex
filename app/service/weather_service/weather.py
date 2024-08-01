@@ -5,11 +5,8 @@ import pandas as pd
 from retry_requests import retry
 from datetime import datetime, timezone, timedelta
 from app.utils.round_time import round_time
+from app.settings import weather_settings
 
-hourly_params = ["temperature_2m", "precipitation",
-                    "surface_pressure", "wind_speed_10m"]
-
-daily_params = ["temperature_2m_max", "precipitation_hours", "wind_speed_10m_max"]
 
 
 class WeatherSearch():
@@ -50,13 +47,13 @@ class WeatherSearch():
             # Долгота
             "longitude": coordinates[1],
             # Ежечасно
-            "hourly": hourly_params,
+            "hourly": weather_settings.hourly_params,
             # Ежедневно 
-            "daily": daily_params,
+            "daily": weather_settings.daily_params,
             # Часовой пояс
             "timezone": 'GMT',
             # Количество дней для отслеживания
-            "forecast_days": 3}
+            "forecast_days": weather_settings.amount_days}
     
 
 
