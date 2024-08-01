@@ -4,10 +4,23 @@ from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase
 
 
+
 class Base(DeclarativeBase):
     '''
     Базовый класс для моделей
     '''
+    id = Column(Integer, primary_key=True, 
+                index=True, autoincrement='auto', unique=True)
+
+
+
+class User(Base):
+    '''
+    Модель пользователя
+    '''
+    __tablename__ = "user"
+
+
 
 class HistoryTable(Base):
     '''
@@ -15,8 +28,7 @@ class HistoryTable(Base):
     '''
     __tablename__ = "history"
 
-    id = Column(Integer, primary_key=True, 
-                index=True, autoincrement='auto', unique=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     sity = Column(String(60), nullable=False)
     count = Column(Integer, nullable=False)
 
