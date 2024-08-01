@@ -1,7 +1,6 @@
 from app.database.database import Database
 from datetime import datetime, timezone
-from app.database.tables.essence import HistoryTable
-from sqlalchemy.orm import Session
+from app.database.tables.essence import HistoryTable, User
 
 
 class ApplicationCRUD():
@@ -9,14 +8,29 @@ class ApplicationCRUD():
     Класс для добавления пользователей и записей в БД
     '''
     
-    def add_record(self, request:str) -> None:
+    
+    def add_user(self) -> int:
+        '''
+        Добавить пользователя и вернуть его id
+        '''
+        with Database() as db:
+            user = User()
+            db.add(user)
+            db.commit()
+
+            return user.id
+
+
+
+    def add_record(self, request:str, user_id:int) -> None:
         '''
         Добавить запись в таблицу с историей поиска
         '''
         with Database() as db:
-            history_id = db.query(HistoryTable.id).filter(HistoryTable.sity==request).all()
+            history_id = db.query(HistoryTable.id).filter(HistoryTable.sity==request, 
+                                                          HistoryTable.user_id==user_id).all()
             if len(history_id)==0 :
-                new_history = HistoryTable(sity=request, count=1)
+                new_history = HistoryTable(sity=request, user_id=user_id, count=1)
                 db.add(new_history)
                 db.commit()
                 
