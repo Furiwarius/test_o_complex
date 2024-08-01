@@ -1,11 +1,13 @@
 from app.service.geolocator.geolocator import Geolocator
 import openmeteo_requests
 import requests_cache
-import pandas as pd
+from app.utils.round_time import round_time
 from retry_requests import retry
 from datetime import datetime, timezone, timedelta
 from app.utils.round_time import round_time
 from app.settings import weather_settings
+from app.entities.day import Day
+from app.entities.now import Now
 
 
 
@@ -67,7 +69,7 @@ class WeatherSearch():
         self._current_data_generation()
         self._daily_data_generation()
 
-        return {"current":self.current_data, "daily":self.daily_data}
+        return {"current":self.weather_now, "daily":self.weather_daily}
 
 
 
@@ -80,8 +82,9 @@ class WeatherSearch():
 
         datas = [current.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["current"])]
         
-        self.current_data = {param:datas for datas, param in zip(datas, self.params["current"])}
-        self.current_data["time"] = current.Time()
+        self.weather_now = Now()
+        [setattr(self.weather_now, param, value) for value, param in zip(datas, self.params["current"])]
+        setattr(self.weather_now, "time", datetime.now(timezone.utc))
         
 
 
@@ -93,9 +96,7 @@ class WeatherSearch():
         # Формирование данных по дням
         daily = self.response.Daily()
         datas = [daily.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["daily"])]
-        
-        self.daily_data = {param:datas for datas, param in zip(datas, self.params["daily"])}
-        self.daily_data["time"]
-        
-    
-    
+
+        self.weather_daily = [Day(time=round_time(datetime.now(timezone.utc)+timedelta(days=number))) for number in range(weather_settings.amount_days)]  
+
+        [[setattr(day, param, value) for day, value in zip(self.weather_daily, data)] for data, param in zip(datas, self.params["daily"])]
