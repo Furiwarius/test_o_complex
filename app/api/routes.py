@@ -2,16 +2,10 @@ from fastapi import APIRouter, Depends,  Form
 from fastapi.responses import FileResponse
 from app.database.cruds import ApplicationCRUD
 from app.service.weather_service.weather import WeatherSearch
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 from fastapi import Cookie, Depends, Response
 
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
-staticfiles = StaticFiles(directory="app")
-router.mount("/static", staticfiles, name="static")
-
 
 
 @router.get("/cookie")
