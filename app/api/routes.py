@@ -14,32 +14,29 @@ router.mount("/static", staticfiles, name="static")
 
 
 
+@router.get("/cookie")
+def cookie(response: Response,
+           crud: ApplicationCRUD = Depends(ApplicationCRUD)):
+    user_id = crud.add_user()
+    response.set_cookie(key="user_id", value=user_id)
+    return  {"message": "куки установлены"}
+
+
+
 @router.get("/", response_class=FileResponse)
-async def index(response: Response, 
-                user_id: str | None = Cookie(default=None), 
-                crud: ApplicationCRUD = Depends(ApplicationCRUD)):
-        
-    if user_id == None:
-        user_id = crud.add_user()
-        response.set_cookie(key="user_id", value=user_id)
+async def index():
 
     return FileResponse("app/templates/index.html")
 
 
 
 @router.post("/weather")
-async def get_weather(response: Response, location=Form(), 
+async def get_weather(location=Form(), 
                       user_id: str | None = Cookie(default=None),
                       crud: ApplicationCRUD = Depends(ApplicationCRUD),
                       weather_search: WeatherSearch = Depends(WeatherSearch)):
     
-    if user_id == None:
-        user_id = crud.add_user()
-        response.set_cookie(key="user_id", value=user_id)
-    
-    else:
-
-        crud.add_record(request=location, user_id=user_id)
-        weather = weather_search.get_weather(location)
+    crud.add_record(request=location, user_id=user_id)
+    weather = weather_search.get_weather(location)
 
     return {"weather": weather}
