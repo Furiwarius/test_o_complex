@@ -99,4 +99,4 @@ class WeatherSearch():
 
         self.weather_daily = [Day(time=round_time(datetime.now(timezone.utc)+timedelta(days=number))) for number in range(weather_settings.amount_days)]  
 
-        [[setattr(day, param, value) for day, value in zip(self.weather_daily, data)] for data, param in zip(datas, self.params["daily"])]
+        [[setattr(day, param, float(value)) for day, value in zip(self.weather_daily, data)] for data, param in zip(datas, self.params["daily"])]
