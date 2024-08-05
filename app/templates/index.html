@@ -6,13 +6,17 @@
 </head>
 <body>
     <h1>Поиск погоды по городам</h1>
-    <form action="weather" method="post">
-        <p>
-            Введите город:<br>
-            <input name="location" />
-        </p>
-        <input type="submit" value="Отправить" />
-    </form>
+
+    <p>
+        Введите город: <br /> 
+        <input name="location" id="location" />
+    </p>
+
+    <button onclick="send()">Отправить</button>
+
+    <div id="waether"></div>
+
+    <script src="/static/scripts/search_weather.js"></script>
     <script src="/static/scripts/cookies.js"></script> 
 </body>
 </html>
