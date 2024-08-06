@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends,  Form
+from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
 from app.database.cruds import ApplicationCRUD
 from app.service.weather_service.weather import WeatherSearch
-from fastapi import Cookie, Depends, Response, Body
+from fastapi import Cookie, Depends, Response
+from app.api.models import UserRequest
 
 
 router = APIRouter()
@@ -25,12 +26,12 @@ async def index():
 
 
 @router.post("/weather")
-async def get_weather(location = Body(), 
+async def get_weather(location:UserRequest, 
                       user_id: str | None = Cookie(default=None),
                       crud: ApplicationCRUD = Depends(ApplicationCRUD),
                       weather_search: WeatherSearch = Depends(WeatherSearch)):
     
-    crud.add_record(request=location['location'], user_id=user_id)
-    weather = weather_search.get_weather(location['location'])
+    crud.add_record(request=location.sity, user_id=user_id)
+    weather = weather_search.get_weather(location.sity)
 
-    return {"weather": weather}
+    return {"message": weather}

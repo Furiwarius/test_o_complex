@@ -1,22 +1,20 @@
 
-
-function send(){
+async function send(){
  
-    // Получаем введенный город
-    const location = document.getElementById("location").value;
+    // получаем введеные данные
+    const sity = document.getElementById("location").value;
 
-    // Отправляем запрос
-    const response = fetch("/weather", {
+    // отправляем запрос
+    const response = await fetch("/weather", {
             method: "POST",
             headers: { "Accept": "application/json", "Content-Type": "application/json" },
             body: JSON.stringify({ 
-                location: location
+                sity: sity,
             })
         });
         if (response.ok) {
-            // Если получили ответ, то печатаем его
-            const data = response.json();
-            document.getElementById("weather").textContent = data.weather;
+            const data = await response.json(); 
+            document.getElementById("message").textContent = data.message;
         }
         else
             console.log(response);
