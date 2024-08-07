@@ -1,6 +1,6 @@
 
 async function send(){
- 
+    
     // получаем введеные данные
     const sity = document.getElementById("location").value;
 
@@ -14,8 +14,36 @@ async function send(){
         });
         if (response.ok) {
             const data = await response.json(); 
-            document.getElementById("message").textContent = data.message;
+            await print_datas(data)
+
         }
         else
             console.log(response);
+}
+
+
+async function print_datas(datas) {
+
+    // Перед добавлением данных на страницу, удаляет страые данные
+    delete_old_datas("search")
+
+    // Добавляет элемент 
+    text = ``
+    for (elem in datas.message.current){
+        div = document.createElement('div');
+        div.id = "search";
+        text += `<p>${elem}: ${datas.message.current[elem]}</p>`;
+    }
+    div.innerHTML = text
+    document.body.append(div);
+}
+
+
+
+async function delete_old_datas(elem_id) {
+
+    // Удаляет элемент если он есть на странице
+    if (document.getElementById(elem_id)){
+        document.getElementById(elem_id).remove()
+    }
 }

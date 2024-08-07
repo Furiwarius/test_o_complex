@@ -25,8 +25,7 @@ def cookie(response: Response,
 @router.get("/")
 async def index(request: Request):
 
-    return  templates.TemplateResponse("error404.html", {"request": request,
-                                                    "page_name": "Погода"})
+    return  templates.TemplateResponse("index.html", {"request": request})
 
 
 
