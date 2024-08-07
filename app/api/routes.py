@@ -1,12 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import FileResponse
 from app.database.cruds import ApplicationCRUD
 from app.service.weather_service.weather import WeatherSearch
 from fastapi import Cookie, Depends, Response
 from app.api.models import UserRequest
+from fastapi.templating import Jinja2Templates
+
 
 
 router = APIRouter()
+templates = Jinja2Templates(directory="app/templates")
+
 
 
 @router.get("/cookie")
@@ -18,10 +22,11 @@ def cookie(response: Response,
 
 
 
-@router.get("/", response_class=FileResponse)
-async def index():
+@router.get("/")
+async def index(request: Request):
 
-    return FileResponse("app/templates/index.html")
+    return  templates.TemplateResponse("error404.html", {"request": request,
+                                                    "page_name": "Погода"})
 
 
 

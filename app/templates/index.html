@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Погода</title>
-    <meta charset="utf-8" />
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
+
     <h1>Поиск погоды по городам</h1>
 
     <p>
@@ -17,6 +13,5 @@
     <div id="waether"></div>
 
     <script src="/static/scripts/search_weather.js"></script>
-    <script src="/static/scripts/cookies.js"></script> 
-</body>
-</html>
+
+{% endblock %}
