@@ -1,36 +1,41 @@
-from fastapi import APIRouter, Depends,  Form, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import FileResponse
 from app.database.cruds import ApplicationCRUD
 from app.service.weather_service.weather import WeatherSearch
+from fastapi import Cookie, Depends, Response
+from app.api.models import UserRequest
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from datetime import datetime, timezone
+
 
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
-staticfiles = StaticFiles(directory="app")
-router.mount("/static", staticfiles, name="static")
-
-wearher_search = WeatherSearch()
-app_crud = ApplicationCRUD()
 
 
-@router.get("/", response_class=FileResponse)
-async def index():
 
-    return FileResponse("app/templates/index.html")
+@router.get("/cookie")
+def cookie(response: Response,
+           crud: ApplicationCRUD = Depends(ApplicationCRUD)):
+    user_id = crud.add_user()
+    response.set_cookie(key="user_id", value=user_id)
+    return  {"message": "куки установлены"}
+
+
+
+@router.get("/")
+async def index(request: Request):
+
+    return  templates.TemplateResponse("index.html", {"request": request})
 
 
 
 @router.post("/weather")
-async def get_weather(request:Request, location=Form()):
-    app_crud.add_record(request=location)
+async def get_weather(location:UserRequest, 
+                      user_id: str | None = Cookie(default=None),
+                      crud: ApplicationCRUD = Depends(ApplicationCRUD),
+                      weather_search: WeatherSearch = Depends(WeatherSearch)):
     
-    wearher = wearher_search.get_weather(location)
+    crud.add_record(request=location.sity, user_id=user_id)
+    weather = weather_search.get_weather(location.sity)
 
-    date = datetime.now(timezone.utc)
-    return templates.TemplateResponse("weather.html", {"request": request, 
-                                                       "weather_now": wearher.get("hourly"),
-                                                       "daily": wearher.get("daily"), 
-                                                       "date": f"{date.hour}:{date.minute}"})
+    return {"message": weather}

@@ -1,15 +1,14 @@
 from app.service.geolocator.geolocator import Geolocator
 import openmeteo_requests
 import requests_cache
-import pandas as pd
+from app.utils.round_time import round_time
 from retry_requests import retry
 from datetime import datetime, timezone, timedelta
 from app.utils.round_time import round_time
+from app.settings import weather_settings
+from app.entities.day import Day
+from app.entities.now import Now
 
-hourly_params = ["temperature_2m", "precipitation",
-                    "surface_pressure", "wind_speed_10m"]
-
-daily_params = ["temperature_2m_max", "precipitation_hours", "wind_speed_10m_max"]
 
 
 class WeatherSearch():
@@ -50,13 +49,13 @@ class WeatherSearch():
             # Долгота
             "longitude": coordinates[1],
             # Ежечасно
-            "hourly": hourly_params,
+            "current": weather_settings.current_params,
             # Ежедневно 
-            "daily": daily_params,
+            "daily": weather_settings.daily_params,
             # Часовой пояс
             "timezone": 'GMT',
             # Количество дней для отслеживания
-            "forecast_days": 3}
+            "forecast_days": weather_settings.amount_days}
     
 
 
@@ -67,32 +66,25 @@ class WeatherSearch():
         self._setting_parameters(location)
         # Запрос данных по параметрам
         self.response = self.openmeteo.weather_api(self.url, params=self.params)[0]
-        self._hourly_data_generation()
+        self._current_data_generation()
         self._daily_data_generation()
 
-        return {"hourly":self.hourly_dataframe.loc[str(round_time(datetime.now(timezone.utc)))], 
-                "daily":self.daily_dataframe}
+        return {"current":self.weather_now, "daily":self.weather_daily}
 
 
 
-    def _hourly_data_generation(self) -> None:
+    def _current_data_generation(self) -> None:
         '''
-        Формирование данных по часам
+        Формирование данных на текущее время
         '''
-        # Формирование почасовых данных
-        hourly = self.response.Hourly()
-        # Почасовая температура 2 мм
-        nympy_datas = [hourly.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["hourly"])]
+
+        current = self.response.Current()
+
+        datas = [current.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["current"])]
         
-        data_dict = {param:datas for datas, param in zip(nympy_datas, self.params["hourly"])}
-        self.hourly_dataframe = pd.DataFrame(data = data_dict)
-        self.hourly_dataframe.index = pd.date_range(
-            start = pd.to_datetime(hourly.Time(), unit = "s", utc = True),
-            end = pd.to_datetime(hourly.TimeEnd(), unit = "s", utc = True),
-            freq = pd.Timedelta(seconds = hourly.Interval()),
-            inclusive = "left"
-            )
-        self.hourly_dataframe.index.name = "date"
+        self.weather_now = Now()
+        [setattr(self.weather_now, param, value) for value, param in zip(datas, self.params["current"])]
+        setattr(self.weather_now, "time", datetime.now(timezone.utc))
         
 
 
@@ -103,18 +95,8 @@ class WeatherSearch():
         '''
         # Формирование данных по дням
         daily = self.response.Daily()
-        # Почасовая температура 2 мм
-        nympy_datas = [daily.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["daily"])]
-        
-        data_dict = {param:datas for datas, param in zip(nympy_datas, self.params["hourly"])}
-        self.daily_dataframe = pd.DataFrame(data = data_dict)
-        self.daily_dataframe.index = pd.date_range(
-            start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
-            end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
-            freq = pd.Timedelta(seconds = daily.Interval()),
-            inclusive = "left"
-            )
-        self.daily_dataframe.index.name = "date"
-        
-    
-    
+        datas = [daily.Variables(index).ValuesAsNumpy() for index, _ in enumerate(self.params["daily"])]
+
+        self.weather_daily = [Day(time=round_time(datetime.now(timezone.utc)+timedelta(days=number))) for number in range(weather_settings.amount_days)]  
+
+        [[setattr(day, param, float(value)) for day, value in zip(self.weather_daily, data)] for data, param in zip(datas, self.params["daily"])]

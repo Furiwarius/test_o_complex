@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, Engine
-from app.settings.settings import NAME_DATABASE
+from app.settings import db_settings
 from app.database.tables.essence import Base
 from sqlalchemy.orm import Session
 
@@ -10,9 +10,6 @@ class Database():
 
     Имеет всего 1 экземпляр на все приложение
     '''
-    # Переменная с именем БД
-    database_name = NAME_DATABASE
-
 
     _instance = None  # Приватное поле для хранения единственного экземпляра
 
@@ -29,7 +26,7 @@ class Database():
 
     def __enter__(self) -> Session:
         self.__new__(self)
-        with Session(autoflush=False, bind=self.engine) as db:
+        with Session(autoflush=db_settings.autoflush, bind=self.engine) as db:
             self.session = db
             return self.session
 
@@ -46,9 +43,9 @@ class Database():
         Создание движка SQLalchemy
         '''
         # строка подключения
-        mysql_database = f"sqlite:///app/database/{self.database_name}.db"
+        sql_database = db_settings.name
         # создаем движок SqlAlchemy
-        self.engine = create_engine(mysql_database, echo=False, connect_args={"check_same_thread": False}) 
+        self.engine = create_engine(sql_database, echo=db_settings.echo, connect_args={"check_same_thread": False}) 
 
 
 
