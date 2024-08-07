@@ -14,7 +14,7 @@ async function send(){
         });
         if (response.ok) {
             const data = await response.json(); 
-            await print_datas(data)
+            await print_current_datas(data)
 
         }
         else
@@ -22,17 +22,26 @@ async function send(){
 }
 
 
-async function print_datas(datas) {
+async function print_current_datas(datas) {
 
     // Перед добавлением данных на страницу, удаляет страые данные
     delete_old_datas("search")
 
     // Добавляет элемент 
     text = ``
+    div = document.createElement('div');
+    div.id = "search";
     for (elem in datas.message.current){
-        div = document.createElement('div');
-        div.id = "search";
-        text += `<p>${elem}: ${datas.message.current[elem]}</p>`;
+        
+        if (elem!="rain" && elem!="snowfall") {
+            text += `<p>${elem}: ${datas.message.current[elem]}</p>`;
+        }
+        else if (elem=="rain" && datas.message.current[elem]!=0) {
+            text += "<p>It is raining</p>";
+        }
+        else if (elem=="snowfall" && datas.message.current[elem]!=0) {
+            text += "<p>It is snowing</p>";
+        }
     }
     div.innerHTML = text
     document.body.append(div);
