@@ -8,6 +8,7 @@ from app.utils.round_time import round_time
 from app.settings import weather_settings
 from app.entities.day import Day
 from app.entities.now import Now
+from app.errors.service_errors import InvalidLocation
 
 
 
@@ -63,7 +64,11 @@ class WeatherSearch():
         '''
         Получить погоду по городу
         '''
-        self._setting_parameters(location)
+        try:
+            self._setting_parameters(location)
+        except InvalidLocation as err:
+            raise err
+        
         # Запрос данных по параметрам
         self.response = self.openmeteo.weather_api(self.url, params=self.params)[0]
         self._current_data_generation()

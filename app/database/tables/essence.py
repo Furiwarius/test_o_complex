@@ -32,3 +32,12 @@ class HistoryTable(Base):
     sity = Column(String(60), nullable=False)
     count = Column(Integer, nullable=False)
 
+
+
+class Admin(Base):
+    '''
+    Модель таблицы с ключами администраторов 
+    '''
+    __tablename__ = "admin"
+
+    admin_key = Column(String(65), nullable=False)
