@@ -21,7 +21,7 @@ async def get_count_user(admin_key: AdminKey,
 
 
 @admin.get("/get_count_reauest")
-async def get_count_reauest(admin_key: AdminKey,
+async def get_count_request(admin_key: AdminKey,
                             location: UserRequest,
                             crud: ApplicationCRUD = Depends(ApplicationCRUD),
                             admin_service: AdminService = Depends(AdminService)):
@@ -35,7 +35,7 @@ async def get_count_reauest(admin_key: AdminKey,
 
 
 @admin.get("/get_max_count_reauest")
-async def get_count_reauest(admin_key: AdminKey,
+async def get_max_count_request(admin_key: AdminKey,
                             crud: ApplicationCRUD = Depends(ApplicationCRUD),
                             admin_service: AdminService = Depends(AdminService)):
     '''

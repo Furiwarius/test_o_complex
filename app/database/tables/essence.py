@@ -40,4 +40,4 @@ class Admin(Base):
     '''
     __tablename__ = "admin"
 
-    admin_key = Column(String(65), nullable=False)
+    admin_key = Column(String(65), nullable=False, unique=True)
