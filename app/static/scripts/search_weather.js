@@ -17,8 +17,9 @@ async function send(){
             await print_datas(data)
 
         }
-        else
+        else {
             console.log(response);
+            print_error()}
 }
 
 
@@ -36,6 +37,18 @@ async function print_datas(datas) {
     }
     div.innerHTML = text
     document.body.append(div);
+}
+
+
+async function print_error() {
+
+    // Перед добавлением данных на страницу, удаляет страые данные
+    delete_old_datas("search")
+
+    div = document.createElement('div');
+    div.id = "search";
+    div.innerHTML = "<p>Сервис не смог найти это место</p>"
+    document.body.append(div)
 }
 
 

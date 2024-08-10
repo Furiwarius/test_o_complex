@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import FileResponse
 from app.database.cruds import ApplicationCRUD
 from app.service.weather_service.weather import WeatherSearch
 from fastapi import Cookie, Depends, Response
 from app.api.models import UserRequest
 from fastapi.templating import Jinja2Templates
+from app.errors.service_errors import InvalidLocation
 
 
 
@@ -35,6 +36,10 @@ async def get_weather(location:UserRequest,
                       weather_search: WeatherSearch = Depends(WeatherSearch)):
     
     crud.add_record(request=location.sity, user_id=user_id)
-    weather = weather_search.get_weather(location.sity)
+
+    try:
+        weather = weather_search.get_weather(location.sity)
+    except InvalidLocation:
+        raise HTTPException(status_code=404, detail="Location not found")
 
     return {"message": weather}

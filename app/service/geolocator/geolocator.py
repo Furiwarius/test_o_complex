@@ -1,4 +1,6 @@
 from geopy.geocoders import Nominatim
+from app.errors.service_errors import InvalidLocation
+
 
 class Geolocator():
     '''
@@ -16,5 +18,7 @@ class Geolocator():
         '''
 
         location = self.lokator.geocode(sity)
-
+        if location is None:
+            raise InvalidLocation("The geolocator could not find the coordinates of this place")
+        
         return (location.latitude, location.longitude)
