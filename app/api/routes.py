@@ -9,12 +9,11 @@ from fastapi.templating import Jinja2Templates
 
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 
 
 
 @router.get("/cookie")
-def cookie(response: Response,
+async def cookie(response: Response,
            crud: ApplicationCRUD = Depends(ApplicationCRUD)):
     user_id = crud.add_user()
     response.set_cookie(key="user_id", value=user_id)
@@ -23,9 +22,9 @@ def cookie(response: Response,
 
 
 @router.get("/")
-async def index(request: Request):
+async def index():
 
-    return  templates.TemplateResponse("index.html", {"request": request})
+    return  FileResponse("app/templates/index.html")
 
 
 
