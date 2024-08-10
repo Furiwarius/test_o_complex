@@ -1,3 +1,7 @@
+import os
+import dotenv
+
+dotenv.load_dotenv()
 
 
 class WeatherSettings():
@@ -24,3 +28,11 @@ class DatabaseSettings():
     autoflush=False
     # Автоматическое логгирование БД
     echo=False
+
+
+class AdminServiceSetting():
+    '''
+    Настройки для администраторской бизнес-логики
+    '''
+    # Секретный ключ, добавляемый в администраторские ключи при хешировании
+    secret = os.getenv("SECRET")
