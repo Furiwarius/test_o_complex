@@ -12,13 +12,13 @@ class Geolocator():
         self.lokator = Nominatim(user_agent="MyApp")
     
 
-    def get_coordinates(self, sity:str) -> tuple:
+    def get_coordinates(self, city:str) -> tuple:
         '''
         Получить координаты по названию города
         '''
 
-        location = self.lokator.geocode(sity)
+        location = self.lokator.geocode(city)
         if location is None:
-            raise InvalidLocation("The geolocator could not find the coordinates of this place")
+            raise InvalidLocation(f"The geolocator could not find the coordinates of this place (city : {city})")
         
         return (location.latitude, location.longitude)
