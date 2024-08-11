@@ -1,5 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
-
+from pydantic import BaseModel, Field
 
 class UserRequest(BaseModel):
     
@@ -12,10 +11,8 @@ class AdminKey(BaseModel):
     admin_key: str
 
 
-    @field_validator("admin_key")
-    @classmethod
-    def validate_email(cls, value):
-        if False:
-            raise Exception
-        
-        return value 
+
+class AdminRequest(BaseModel):
+
+    key: AdminKey
+    location: UserRequest
