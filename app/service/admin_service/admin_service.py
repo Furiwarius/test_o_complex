@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from app.utils.to_hash import to_hash
 from app.database.admin_cruds import AdminCRUD
 from app.settings import get_admin_settings
-from app.errors.service_errors import SecretNotFound
+from app.errors.service_errors import SecretNotFound, InvalidKey
 
 
 class AdminService():
@@ -32,3 +32,11 @@ class AdminService():
         self.admin_crud.add_admin(key=new_key)
 
         return new_key
+
+
+    def key_verification(self, key:str) -> None:
+        '''
+        Проверка ключа
+        '''
+        if not self.admin_crud.check_exist(key=key):
+            raise InvalidKey("Incorrect key passed")

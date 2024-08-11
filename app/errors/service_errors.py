@@ -7,9 +7,17 @@ class InvalidLocation(BaseException):
     найти координаты по переданному месту
     '''
 
+
 class SecretNotFound(BaseException):
     '''
     Вызывается, если в файле окружения
     отстутствует переменная SECRET, добавляемая
     в администраторский ключ
+    '''
+
+
+
+class InvalidKey(BaseException):
+    '''
+    Вызывается, если передан несуществующий или неверный ключ
     '''

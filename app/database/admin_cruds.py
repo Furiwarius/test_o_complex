@@ -9,6 +9,19 @@ class AdminCRUD():
     '''
 
 
+    def check_exist(self, key:str) -> bool:
+        '''
+        Проверка наличия ключа
+        '''
+        with Database() as db:
+            result = db.query(Admin.id).filter(Admin.admin_key==key).scalar()
+        
+        if result: 
+            return True
+        return False
+
+
+
     def add_admin(self, key:str) -> str:
         '''
         Получает хешированный ключ админа и добавляет его в бд
