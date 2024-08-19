@@ -19,12 +19,10 @@ class TestService():
         по названию места
         '''
 
-        valid_locations = [fake.city_name() for _ in range(10)]
-        invalid_locations = [city+str(randrange(10)) for city in valid_locations]
+        valid_locations = fake.city_name()
+        invalid_locations = valid_locations+str(randrange(10))
 
-        for location in valid_locations:
-            coordinate.get_coordinates(location)
+        coordinate.get_coordinates(valid_locations)
 
         with pytest.raises(InvalidLocation):
-            for location in invalid_locations:
-                coordinate.get_coordinates(location)
+            coordinate.get_coordinates(invalid_locations)
