@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api.routes import router
+from app.api.admin_routes import admin
 from fastapi.staticfiles import StaticFiles
 
 
@@ -14,6 +15,7 @@ class Application():
         '''
         self.app = FastAPI()
         self.app.include_router(router)
+        self.app.include_router(admin)
         
         self.app.mount("/static", StaticFiles(directory="app/static"))
         
